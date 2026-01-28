@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>화장품 관리 홈</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .table th, .table td { vertical-align: middle; }
+        .text-truncate-box { max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    </style>
+</head>
+<body>
+
+<div class="container mt-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>💄 화장품 관리 시스템</h2>
+        <a th:href="@{/cosmetic/form}" class="btn btn-success btn-lg">
+            + 새 화장품 등록
+        </a>
+    </div>
+
+    <form th:action="@{/getDataList}" method="get"
+          th:object="${searchConditionDtos}"
+          class="border p-4 rounded bg-light mb-4">
+
+        <div class="row g-3">
+            <div class="col-md-2">
+                <input type="text" th:field="*{primaryCategory}"
+                       class="form-control"
+                       placeholder="대분류 (예: SKIN)">
+            </div>
+
+            <div class="col-md-2">
+                <input type="text" th:field="*{category}"
+                       class="form-control"
+                       placeholder="카테고리 (예: TONER)">
+            </div>
+
+            <div class="col-md-3">
+                <input type="text" th:field="*{countryName}" class="form-control"
+                       placeholder="제조국 (예: 대한민국)">
+            </div>
+
+            <div class="col-md-3">
+                <input type="text" th:field="*{brandName}" class="form-control"
+                       placeholder="브랜드명 검색">
+            </div>
+
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">검색</button>
+            </div>
+        </div>
+    </form>
+    <table class="table table-hover table-bordered">
+        <thead class="table-dark">
+        <tr class="text-center">
+            <th>ID</th>
+            <th>대분류</th>
+            <th>카테고리</th>
+            <th>브랜드</th>
+            <th>제품명</th>
+            <th>제조국</th> <th>관리</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:if="${page.isEmpty()}">
+            <td colspan="7" class="text-center py-4">검색 결과가 없습니다.</td>
+        </tr>
+
+        <tr th:each="dto : ${page.content}">
+            <td th:text="${dto.id}" class="text-center">1</td>
+            <td th:text="${dto.primaryCategory}" class="text-center">SKIN</td>
+            <td th:text="${dto.category}" class="text-center">TONER</td>
+            <td th:text="${dto.brandName}">이니스프리</td>
+            <td>
+                <div class="text-truncate-box" th:text="${dto.name}">그린티 씨드 세럼</div>
+            </td>
+            <td th:text="${dto.countryName}" class="text-center">대한민국</td>
+
+            <td class="text-center">
+                <a th:href="@{/{id}/edit(id=${dto.id})}"
+                   class="btn btn-sm btn-outline-primary">
+                    수정
+                </a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <nav th:if="${!page.isEmpty()}"
+         th:with="
+            pageNumber = ${page.number},
+            pageSize = 5,
+            totalPages = ${page.totalPages},
+            startPage = ${T(java.lang.Math).floor(pageNumber / pageSize) * pageSize + 1},
+            tempEndPage = ${startPage + pageSize - 1},
+            endPage = ${tempEndPage < totalPages ? tempEndPage : totalPages}
+         ">
+        <ul class="pagination justify-content-center">
+
+            <li class="page-item" th:classappend="${page.first} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/getDataList(page=${page.number - 1},
+                                           brandName=${param.brandName},
+                                           countryName=${param.countryName},
+                                           primaryCategory=${param.primaryCategory},
+                                           category=${param.category})}">
+                    &laquo;
+                </a>
+            </li>
+
+            <li class="page-item"
+                th:each="i : ${#numbers.sequence(startPage, endPage)}"
+                th:classappend="${i == page.number + 1} ? 'active'">
+                <a class="page-link"
+                   th:text="${i}"
+                   th:href="@{/getDataList(page=${i - 1},
+                                           brandName=${param.brandName},
+                                           countryName=${param.countryName},
+                                           primaryCategory=${param.primaryCategory},
+                                           category=${param.category})}">
+                    1
+                </a>
+            </li>
+
+            <li class="page-item" th:classappend="${page.last} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/getDataList(page=${page.number + 1},
+                                           brandName=${param.brandName},
+                                           countryName=${param.countryName},
+                                           primaryCategory=${param.primaryCategory},
+                                           category=${param.category})}">
+                    &raquo;
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+</div>
+</body>
+</html>
