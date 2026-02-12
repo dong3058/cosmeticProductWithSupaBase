@@ -3,6 +3,8 @@ package com.makecsv.autoInfoMapper.domain;
 
 import com.makecsv.autoInfoMapper.domain.entity.Brand;
 import com.makecsv.autoInfoMapper.domain.entity.Country;
+import com.makecsv.autoInfoMapper.domain.entity.PrimaryCategory;
+import com.makecsv.autoInfoMapper.domain.entity.SecondaryCategory;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,8 +12,8 @@ import lombok.Getter;
 @Getter
 public class CosmeticResponseDto {
     private Long id;
-    private String primaryCategory;
-    private String category;
+    private PrimaryCategory primaryCategory;
+    private SecondaryCategory category;
     private String brandName;
     private String producer;
     private String countryName;
@@ -25,7 +27,7 @@ public class CosmeticResponseDto {
     private String tel;
     private String description;
 
-    public CosmeticResponseDto(Long id, String primaryCategory, String category,
+    public CosmeticResponseDto(Long id, PrimaryCategory primaryCategory, SecondaryCategory category,
                                String brandName, String producer, String countryName, String name
             , String volume, String spec, String shelfLife, String ingredients
             , String mfdsApprovalStatus, String qualityAssuranceStandard, String tel, String description) {

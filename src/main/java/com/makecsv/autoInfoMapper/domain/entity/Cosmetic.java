@@ -15,8 +15,10 @@ public class Cosmetic {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    private String primaryCategory;
-    private String category;
+    @Enumerated(EnumType.STRING)
+    private PrimaryCategory primaryCategory;
+    @Enumerated(EnumType.STRING)
+    private SecondaryCategory secondaryCategory;
     @ManyToOne(fetch = FetchType.LAZY)
     private Brand brand;
     private String producer;
@@ -35,12 +37,12 @@ public class Cosmetic {
 
 
     @Builder
-    public Cosmetic(String primaryCategory, String category, Brand brand,
+    public Cosmetic(PrimaryCategory primaryCategory, SecondaryCategory secondaryCategory, Brand brand,
                     String name,String volume, String spec,String shelfLife, String producer
             ,Country country,     String ingredients, String mfdsApprovalStatus,
                     String qualityAssuranceStandard, String tel, String description) {
         this.primaryCategory = primaryCategory;
-        this.category = category;
+        this.secondaryCategory=secondaryCategory;
         this.brand = brand;
         this.producer = producer;
         this.country = country;
@@ -56,11 +58,11 @@ public class Cosmetic {
     }
 
 
-    public void updateCategory(String category){
-        this.category=category;
+    public void updateCategory(SecondaryCategory category){
+        this.secondaryCategory=category;
     }
 
-    public void updatePrimaryCategory(String primaryCategory){
+    public void updatePrimaryCategory(PrimaryCategory primaryCategory){
         this.primaryCategory=primaryCategory;
     }
     public void updateName(String name){

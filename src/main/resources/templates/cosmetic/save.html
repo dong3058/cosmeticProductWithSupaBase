@@ -8,7 +8,7 @@
         /* 입력란에 에러가 있을 경우 테두리를 빨갛게 */
         .field-error {
             border-color: #dc3545;
-            color: #dc3545;
+            color: #dc3545; /* 텍스트 색상도 붉게 */
         }
         .error-text {
             color: #dc3545;
@@ -33,7 +33,7 @@
             <input type="text" th:field="*{brandName}"
                    class="form-control" th:errorclass="field-error"
                    placeholder="브랜드 이름을 입력하세요">
-            <div class="error-text" th:errors="*{brandName}">브랜드명 오류</div>
+            <div class="field-error" th:errors="*{brandName}">브랜드명 오류</div>
         </div>
 
         <div class="mb-3">
@@ -41,24 +41,28 @@
             <input type="text" th:field="*{name}"
                    class="form-control" th:errorclass="field-error"
                    placeholder="제품명을 입력하세요">
-            <div class="error-text" th:errors="*{name}">제품명 오류</div>
+            <div class="field-error" th:errors="*{name}">제품명 오류</div>
         </div>
 
         <div class="mb-3">
             <label for="primaryCategory" class="form-label">대분류</label>
-            <input type="text" th:field="*{primaryCategory}"
-                   class="form-control"
-                   th:errorclass="field-error"
-                   placeholder="대분류를 직접 입력하세요">
+            <select th:field="*{primaryCategory}" class="form-select" th:errorclass="field-error">
+                <option value="">대분류 선택</option>
+                <option th:each="cat : ${mainCategory}"
+                        th:value="${cat}"
+                        th:text="${cat.description}">스킨케어</option>
+            </select>
             <div class="error-text" th:errors="*{primaryCategory}">대분류 오류</div>
         </div>
 
         <div class="mb-3">
             <label for="category" class="form-label">상세 카테고리</label>
-            <input type="text" th:field="*{category}"
-                   class="form-control"
-                   th:errorclass="field-error"
-                   placeholder="카테고리를 직접 입력하세요">
+            <select th:field="*{category}" class="form-select" th:errorclass="field-error">
+                <option value="">상세 카테고리 선택</option>
+                <option th:each="sub : ${subCategory}"
+                        th:value="${sub}"
+                        th:text="${sub.description}">스킨/토너</option>
+            </select>
             <div class="error-text" th:errors="*{category}">카테고리 오류</div>
         </div>
 

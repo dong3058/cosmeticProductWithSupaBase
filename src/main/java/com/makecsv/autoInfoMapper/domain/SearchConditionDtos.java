@@ -1,6 +1,8 @@
 package com.makecsv.autoInfoMapper.domain;
 
 
+import com.makecsv.autoInfoMapper.domain.entity.PrimaryCategory;
+import com.makecsv.autoInfoMapper.domain.entity.SecondaryCategory;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -11,8 +13,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class SearchConditionDtos {
-    private String primaryCategory;
-    private String category;
+    private PrimaryCategory primaryCategory;
+    private SecondaryCategory category;
     private String countryName;
     private String brandName;
     private int offset;

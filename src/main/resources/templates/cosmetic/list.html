@@ -26,15 +26,21 @@
 
         <div class="row g-3">
             <div class="col-md-2">
-                <input type="text" th:field="*{primaryCategory}"
-                       class="form-control"
-                       placeholder="대분류 (예: SKIN)">
+                <select th:field="*{primaryCategory}" class="form-select">
+                    <option value="">대분류 전체</option>
+                    <option th:each="val : ${mainCategory}"
+                            th:value="${val}"
+                            th:text="${val.description}">스킨케어</option>
+                </select>
             </div>
 
             <div class="col-md-2">
-                <input type="text" th:field="*{category}"
-                       class="form-control"
-                       placeholder="카테고리 (예: TONER)">
+                <select th:field="*{category}" class="form-select">
+                    <option value="">카테고리 전체</option>
+                    <option th:each="val : ${subCategory}"
+                            th:value="${val}"
+                            th:text="${val.description}">스킨/토너</option>
+                </select>
             </div>
 
             <div class="col-md-3">
@@ -70,8 +76,8 @@
 
         <tr th:each="dto : ${page.content}">
             <td th:text="${dto.id}" class="text-center">1</td>
-            <td th:text="${dto.primaryCategory}" class="text-center">SKIN</td>
-            <td th:text="${dto.category}" class="text-center">TONER</td>
+            <td th:text="${dto.primaryCategory?.description}" class="text-center">스킨케어</td>
+            <td th:text="${dto.category?.description}" class="text-center">스킨/토너</td>
             <td th:text="${dto.brandName}">이니스프리</td>
             <td>
                 <div class="text-truncate-box" th:text="${dto.name}">그린티 씨드 세럼</div>
@@ -79,10 +85,16 @@
             <td th:text="${dto.countryName}" class="text-center">대한민국</td>
 
             <td class="text-center">
-                <a th:href="@{/{id}/edit(id=${dto.id})}"
-                   class="btn btn-sm btn-outline-primary">
-                    수정
-                </a>
+                <div class="btn-group" role="group">
+                    <a th:href="@{/{id}/edit(id=${dto.id})}"
+                    class="btn btn-sm btn-outline-primary">
+                        수정
+                    </a>
+                    <a th:href="@{/cosmetic/{id}/summaries(id=${dto.id})}"
+                    class="btn btn-sm btn-outline-info">
+                        요약
+                    </a>
+                </div>
             </td>
         </tr>
         </tbody>

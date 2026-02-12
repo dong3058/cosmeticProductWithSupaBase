@@ -24,8 +24,6 @@ public class QCosmetic extends EntityPathBase<Cosmetic> {
 
     public final QBrand brand;
 
-    public final StringPath category = createString("category");
-
     public final QCountry country;
 
     public final StringPath description = createString("description");
@@ -38,11 +36,13 @@ public class QCosmetic extends EntityPathBase<Cosmetic> {
 
     public final StringPath name = createString("name");
 
-    public final StringPath primaryCategory = createString("primaryCategory");
+    public final EnumPath<PrimaryCategory> primaryCategory = createEnum("primaryCategory", PrimaryCategory.class);
 
     public final StringPath producer = createString("producer");
 
     public final StringPath qualityAssuranceStandard = createString("qualityAssuranceStandard");
+
+    public final EnumPath<SecondaryCategory> secondaryCategory = createEnum("secondaryCategory", SecondaryCategory.class);
 
     public final StringPath shelfLife = createString("shelfLife");
 

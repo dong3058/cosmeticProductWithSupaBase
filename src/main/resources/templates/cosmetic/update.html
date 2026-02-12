@@ -21,27 +21,33 @@
     <div class="mb-3">
       <label for="brand" class="form-label">브랜드</label>
       <input type="text" id="brand" th:field="*{brand}"
-             class="form-control" placeholder="브랜드명 입력 (비워두면 null)">
+             class="form-control" placeholder="브랜드명 입력">
     </div>
 
     <div class="mb-3">
       <label for="name" class="form-label">제품명</label>
       <input type="text" id="name" th:field="*{name}"
-             class="form-control" placeholder="제품명 입력 (비워두면 null)">
+             class="form-control" placeholder="제품명 입력">
     </div>
 
     <div class="mb-3">
       <label for="primaryCategory" class="form-label">대분류</label>
-      <input type="text" id="primaryCategory" th:field="*{primaryCategory}"
-             class="form-control"
-             placeholder="대분류 입력(비워두면 null)">
+      <select id="primaryCategory" th:field="*{primaryCategory}" class="form-select">
+        <option value="">대분류 선택 (비워두면 null)</option>
+        <option th:each="cat : ${mainCategory}"
+                th:value="${cat}"
+                th:text="${cat.description}">스킨케어</option>
+      </select>
     </div>
 
     <div class="mb-3">
       <label for="category" class="form-label">상세 카테고리</label>
-      <input type="text" id="category" th:field="*{category}"
-             class="form-control"
-             placeholder="카테고리 입력(비워두면 null)">
+      <select id="category" th:field="*{category}" class="form-select">
+        <option value="">상세 카테고리 선택 (비워두면 null)</option>
+        <option th:each="sub : ${subCategory}"
+                th:value="${sub}"
+                th:text="${sub.description}">스킨/토너</option>
+      </select>
     </div>
 
     <hr class="my-4">

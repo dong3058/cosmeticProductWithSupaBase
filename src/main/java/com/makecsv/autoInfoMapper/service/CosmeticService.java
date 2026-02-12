@@ -58,13 +58,16 @@ public class CosmeticService {
             "소비자상담 전화번호"
     );
 
+    public String getCosmeticDescription(Long id){
+        return  cosmeticRepository.findById(id).get().getDescription();
+    }
+
 
     public UpdateCosmeticDto findDataForUpdate(Long id){
         Optional<Cosmetic> cosmetic1=cosmeticRepository.findById(id);
         return UpdateCosmeticDto.builder()
                 .id(id)
                 .brand(cosmetic1.get().getBrand().getBrandName())
-                .category(cosmetic1.get().getCategory())
                 .primaryCategory(cosmetic1.get().getPrimaryCategory())
                 .name(cosmetic1.get().getName())
                 .build();
@@ -105,10 +108,10 @@ public class CosmeticService {
 
     public void updateCosmeticData(UpdateCosmeticDto updateCosmeticDto,Long id){
         Optional<Cosmetic> cosmetic1=cosmeticRepository.findById(id);
-        if(updateCosmeticDto.getCategory()!=null&&!updateCosmeticDto.getCategory().isBlank()){
+        if(updateCosmeticDto.getCategory()!=null){
             cosmetic1.get().updateCategory(updateCosmeticDto.getCategory());
         }
-        if(updateCosmeticDto.getPrimaryCategory()!=null&&!updateCosmeticDto.getPrimaryCategory().isBlank()){
+        if(updateCosmeticDto.getPrimaryCategory()!=null){
             cosmetic1.get().updatePrimaryCategory(updateCosmeticDto.getPrimaryCategory());
         }
         if(updateCosmeticDto.getBrand()!=null&&!updateCosmeticDto.getBrand().isBlank()){
@@ -132,7 +135,7 @@ public class CosmeticService {
             List<CosmeticResponseDto> cosmeticResponseDtos=queryFactory.select(Projections.constructor(CosmeticResponseDto.class,
                     cosmetic.id,
                     cosmetic.primaryCategory,
-                    cosmetic.category,
+                    cosmetic.secondaryCategory,
                     brand.brandName,
                     cosmetic.producer,
                     country.countryName,
@@ -173,11 +176,11 @@ public class CosmeticService {
 
         BooleanBuilder predicate = new BooleanBuilder();
 
-        if(searchConditionDtos.getPrimaryCategory()!=null&&!searchConditionDtos.getPrimaryCategory().isBlank()){
+        if(searchConditionDtos.getPrimaryCategory()!=null){
             predicate.and(cosmetic.primaryCategory.eq(searchConditionDtos.getPrimaryCategory()));
         }
-        if(searchConditionDtos.getCategory()!=null&&!searchConditionDtos.getCategory().isBlank()){
-            predicate.and(cosmetic.category.eq(searchConditionDtos.getCategory()));
+        if(searchConditionDtos.getCategory()!=null){
+            predicate.and(cosmetic.secondaryCategory.eq(searchConditionDtos.getCategory()));
         }
         if(searchConditionDtos.getCountryName()!=null&&!searchConditionDtos.getCountryName().isBlank()){
             predicate.and(country.countryName.eq(searchConditionDtos.getCountryName()));
@@ -195,7 +198,7 @@ public class CosmeticService {
     private Cosmetic mappingToCosmetic(Brand b,Country c,CosmeticDtos cosmeticDtos,List<String> results){
         return Cosmetic.builder()
                 .primaryCategory(cosmeticDtos.getPrimaryCategory())
-                .category(cosmeticDtos.getCategory())
+                .secondaryCategory(cosmeticDtos.getCategory())
                 .name(cosmeticDtos.getName())
                 .country(c)
                 .brand(b)

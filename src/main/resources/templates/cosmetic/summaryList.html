@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>제품 요약 정보</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .scroll-btn-group { position: fixed; bottom: 30px; right: 30px; z-index: 1000; display: flex; flex-direction: column; gap: 5px; }
+        .scroll-btn { width: 50px; height: 50px; border-radius: 50%; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1); opacity: 0.8; transition: opacity 0.3s; }
+        .scroll-btn:hover { opacity: 1; }
+        .keyword-badge { background-color: #e3f2fd; color: #0d47a1; padding: 5px 10px; border-radius: 15px; font-size: 0.9em; margin-right: 5px; }
+    </style>
+</head>
+<body id="top-anchor">
+
+<div class="container mt-5 mb-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+        <div>
+            <h4 class="text-muted mb-1">제품 요약 리스트</h4>
+            <input type="hidden" id="pageCosmeticId" th:value="${cosmeticId}">
+        </div>
+        <div>
+            <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#jsonModal">
+                {} JSON 일괄 등록
+            </button>
+            <a th:href="@{/getDataList}" class="btn btn-outline-secondary">목록으로</a>
+        </div>
+    </div>
+
+    <div id="summary-container" th:fragment="summaryListArea">
+
+        <div th:if="${summaries == null or summaries.isEmpty()}" class="alert alert-warning text-center p-5">
+            <h4 th:text="${description} ?: '등록된 요약 정보가 없습니다.'">
+                등록된 요약 정보가 없습니다.
+            </h4>
+        </div>
+
+        <div class="row g-4" th:if="${summaries != null and !summaries.isEmpty()}">
+            <div class="col-12" th:each="summary : ${summaries}">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fw-bold" th:text="${summary.header}">헤더</h5>
+
+                        <div>
+                            <small class="text-muted me-2">ID: <span th:text="${summary.id}">1</span></small>
+
+                            <button type="button" class="btn btn-sm btn-outline-primary me-1"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#updateModal"
+                                    th:onclick="openUpdateModal([[${summary.id}]], [[${summary.header}]], [[${summary.keyword}]], [[${summary.summary}]])">
+                                수정
+                            </button>
+
+                            <button type="button" class="btn btn-sm btn-outline-danger"
+                                    th:onclick="deleteSummary([[${summary.id}]])">
+                                삭제
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text fs-5" style="white-space: pre-line;" th:text="${summary.summary}">요약 내용</p>
+                    </div>
+                    <div class="card-footer bg-white">
+                        <strong>Keywords:</strong>
+                        <span class="keyword-badge" th:text="${summary.keyword}">#키워드</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="bottom-anchor"></div>
+</div>
+
+<div class="modal fade" id="updateModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">요약 정보 수정</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="edit-id">
+
+                <div class="mb-3">
+                    <label class="form-label">헤더 (Header)</label>
+                    <input type="text" id="edit-header" class="form-control" placeholder="비워두면 null 처리">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">키워드 (Keyword)</label>
+                    <input type="text" id="edit-keyword" class="form-control" placeholder="비워두면 null 처리">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">요약 내용 (Summary)</label>
+                    <textarea id="edit-summary" class="form-control" rows="5" placeholder="비워두면 null 처리"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                <button type="button" class="btn btn-primary" onclick="submitUpdate()">수정 완료</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="jsonModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">JSON 데이터 일괄 등록</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <textarea id="jsonInput" class="form-control font-monospace" rows="10"
+                          placeholder='[ {"header":"제목", "keyword":"#태그", "summary":"내용"} ]'></textarea>
+
+                <input type="hidden" id="currentCosmeticId" th:value="${cosmeticId}">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+                <button type="button" class="btn btn-primary" onclick="submitJson()">등록하기</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // 1. 공통: HTML 조각 교체 함수
+    async function refreshList(response) {
+        if (response.ok) {
+            const htmlFragment = await response.text();
+            document.getElementById('summary-container').innerHTML = htmlFragment;
+        } else {
+            const err = await response.text();
+            alert("작업 실패: " + err);
+        }
+    }
+
+    // 2. [DELETE] 삭제 AJAX
+    async function deleteSummary(summaryId) {
+        if (!confirm('정말 삭제하시겠습니까? (즉시 반영됩니다)')) return;
+
+        const cosmeticId = document.getElementById('pageCosmeticId').value;
+        const url = `/cosmetic/${cosmeticId}/summaries/${summaryId}/delete-ajax`;
+
+        try {
+            const response = await fetch(url, { method: 'POST' });
+            await refreshList(response);
+        } catch (e) {
+            console.error(e);
+            alert("삭제 중 오류가 발생했습니다.");
+        }
+    }
+
+    // 3. [UPDATE] 모달 열기 (데이터 바인딩)
+    function openUpdateModal(id, header, keyword, summary) {
+        document.getElementById('edit-id').value = id;
+        document.getElementById('edit-header').value = header || '';
+        document.getElementById('edit-keyword').value = keyword || '';
+        document.getElementById('edit-summary').value = summary || '';
+    }
+
+    // 4. [UPDATE] 수정 제출 AJAX
+    async function submitUpdate() {
+        const cosmeticId = document.getElementById('pageCosmeticId').value;
+        const summaryId = document.getElementById('edit-id').value;
+
+        const headerVal = document.getElementById('edit-header').value.trim();
+        const keywordVal = document.getElementById('edit-keyword').value.trim();
+        const summaryVal = document.getElementById('edit-summary').value.trim();
+
+        const payload = {
+            cosmeticSummaryId: parseInt(summaryId),
+            header: headerVal === '' ? null : headerVal,
+            keyword: keywordVal === '' ? null : keywordVal,
+            summary: summaryVal === '' ? null : summaryVal
+        };
+
+        const url = `/cosmetic/${cosmeticId}/summaries/update-ajax`;
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            await refreshList(response);
+
+            if (response.ok) {
+                const modalEl = document.getElementById('updateModal');
+                const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+
+                // ★ [핵심 수정] 모달 닫기 전 포커스 해제 (aria-hidden 에러 방지)
+                if (document.activeElement) {
+                    document.activeElement.blur();
+                }
+
+                modal.hide();
+            }
+
+        } catch (e) {
+            console.error(e);
+            alert("수정 중 오류가 발생했습니다.");
+        }
+    }
+
+    // 5. [CREATE] JSON 등록 AJAX
+    async function submitJson() {
+        const jsonText = document.getElementById('jsonInput').value;
+        const cosmeticId = document.getElementById('pageCosmeticId').value;
+
+        if (!jsonText.trim()) { alert("입력하세요."); return; }
+
+        try {
+            const parsedList = JSON.parse(jsonText);
+            const payload = { cosmeticId: parseInt(cosmeticId), requestSummaryCreateList: parsedList };
+
+            const response = await fetch('/cosmetic/summaries/create-json-ajax', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            await refreshList(response);
+
+            if (response.ok) {
+                const modalEl = document.getElementById('jsonModal');
+                const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+
+                // ★ [핵심 수정] 모달 닫기 전 포커스 해제
+                if (document.activeElement) {
+                    document.activeElement.blur();
+                }
+
+                modal.hide();
+                document.getElementById('jsonInput').value = '';
+                alert("등록 완료");
+            }
+        } catch (e) {
+            alert("JSON 에러: " + e.message);
+        }
+    }
+</script>
+
+</body>
+</html>
